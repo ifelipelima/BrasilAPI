@@ -50,11 +50,13 @@ const zipCode = formatZipCode(CEP || cep);
 
 **Aspectos atingidos:** acoplamento, coesão, extensibilidade e manutenção.
 
+**Padrão:** `Adapter`, permitindo adaptar os diferentes formatos externos para uma representação interna comum.
+
 ---
 
 #### 2. Composição rígida dos diferentes tipos de feriados
 
-**Arquivo:** `services/holidays/index.js`
+`services/holidays/index.js`
 
 O serviço possui diferentes regras de geração de feriados, mas a função `getHolidays()` conhece e executa diretamente cada uma delas.
 
@@ -84,11 +86,13 @@ return sortByDate([...easterHolidays, ...nationalHolidays, ...stateHolidays]);
 
 **Aspectos atingidos:** extensibilidade, acoplamento e manutenção.
 
+**Padrão:** `Composite`, permitindo tratar e combinar diferentes fontes de feriados através de uma estrutura comum.
+
 ---
 
 #### 3. Acoplamento do endpoint ISBN aos provedores externos
 
-**Arquivos:** `pages/api/isbn/v1/[isbn].js` e `services/isbn/`
+`pages/api/isbn/v1/[isbn].js` e `services/isbn/`
 
 O endpoint de ISBN conhece diretamente as implementações dos diferentes provedores utilizados para realizar a consulta, concentrando também a seleção e coordenação dessas fontes.
 
@@ -122,11 +126,13 @@ const PROVIDER_MAP = {
 
 **Aspectos atingidos:** acoplamento, separação de responsabilidades, extensibilidade e manutenção.
 
+**Padrão:** `Facade`, centralizando a coordenação dos provedores em uma interface única para o endpoint.
+
 ---
 
 #### 4. Duplicação do fluxo de paginação de tickers
 
-**Arquivo:** `services/tickers/listTickers.js`
+`services/tickers/listTickers.js`
 
 O serviço possui fluxos praticamente iguais para listar tickers de ações e de fundos de investimento, variando principalmente a função utilizada para buscar cada página.
 
@@ -163,3 +169,5 @@ return tickers;
 - A principal variação entre os fluxos está na forma de buscar uma página, utilizando `fetchStockTickers()` ou `fetchInvestmentFundTickers()`.
 
 **Aspectos atingidos:** duplicação de código, manutenção, reutilização e extensibilidade.
+
+**Padrão:** `Template Method`, permitindo reutilizar o fluxo comum de paginação e variar apenas a etapa responsável pela obtenção dos dados.
