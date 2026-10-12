@@ -10,6 +10,7 @@ export class StateHolidayComponent extends HolidayComponent {
       return [];
     }
 
+    // Mapa simples de feriados estaduais por UF
     const stateHolidaysMap = {
       AC: [{ monthDay: '01-23', name: 'Dia do Evangélico' }],
       AL: [{ monthDay: '06-24', name: 'São João' }],

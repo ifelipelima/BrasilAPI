@@ -1,3 +1,8 @@
+/**
+ * Converte uma data em string para o nome do dia da semana em português
+ * @param {string} dateString - Data no formato YYYY-MM-DD
+ * @returns {string} Nome do dia da semana
+ */
 export function getWeekdayName(dateString) {
   const weekdays = [
     'domingo',

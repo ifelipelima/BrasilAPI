@@ -3,6 +3,10 @@ import NotFoundError from '@/errors/NotFoundError';
 import { HolidayComponent } from './holidayComponent';
 import { getWeekdayName } from './holidayUtils';
 
+/**
+ * Tabela da lua cheia de Páscoa, valida entre 1900 e 2199, inclusive.
+ * Contendo mês (indexado em 0) e dia.
+ */
 function getPascalFullMoonDates() {
   return [
     [3, 14],
@@ -27,6 +31,10 @@ function getPascalFullMoonDates() {
   ];
 }
 
+/**
+ * @param Date date
+ * @return string
+ */
 function formatDate(date) {
   return date.toISOString().substr(0, 10);
 }
