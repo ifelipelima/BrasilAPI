@@ -6,6 +6,8 @@ import path from 'path';
 
 import banksList from './banksList.json';
 import logoUrls from './logo-urls.json';
+import { CnpjAddressAdapter } from './adapters/cnpjAddressAdapter';
+import { BcbAddressAdapter } from './adapters/bcbAddressAdapter';
 
 const BCB_SEDES_URLS = [
   'https://olinda.bcb.gov.br/olinda/servico/Instituicoes_em_funcionamento/versao/v1/odata/SedesBancoComMultCE?$format=json',
@@ -43,72 +45,6 @@ const normalizeText = (text = '') =>
     .replace(/[^A-Z0-9 ]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-
-const formatZipCode = (zipCode) => {
-  if (!zipCode) {
-    return null;
-  }
-
-  const onlyNumbers = String(zipCode).replace(/\D/g, '');
-
-  if (!onlyNumbers) {
-    return null;
-  }
-
-  if (onlyNumbers.length === 8) {
-    return `${onlyNumbers.slice(0, 5)}-${onlyNumbers.slice(5)}`;
-  }
-
-  return onlyNumbers;
-};
-
-const parseAddress = ({
-  ENDERECO,
-  logradouro,
-  COMPLEMENTO,
-  complemento,
-  BAIRRO,
-  bairro,
-  MUNICIPIO,
-  municipio,
-  UF,
-  uf,
-  CEP,
-  cep,
-  numero,
-}) => {
-  const street = ENDERECO || logradouro || null;
-  const number = numero || null;
-  const complement = COMPLEMENTO || complemento || null;
-  const district = BAIRRO || bairro || null;
-  const city = MUNICIPIO || municipio || null;
-  const state = UF || uf || null;
-  const zipCode = formatZipCode(CEP || cep);
-
-  const hasAddressData = [
-    street,
-    number,
-    complement,
-    district,
-    city,
-    state,
-    zipCode,
-  ].some(Boolean);
-
-  if (!hasAddressData) {
-    return null;
-  }
-
-  return {
-    street,
-    number,
-    complement,
-    district,
-    city,
-    state,
-    zipCode,
-  };
-};
 
 const fetchSedesData = async () => {
   const requests = BCB_SEDES_URLS.map((url) =>
@@ -236,7 +172,7 @@ const findSedesMatch = (bank, sedesIndexes) => {
 
 const getCnpjAddress = async (cnpj) => {
   const response = await getCnpjData(cnpj);
-  return parseAddress(response?.data || {});
+  return CnpjAddressAdapter.adapt(response?.data || {});
 };
 
 const buildNoAddressMetadata = (bank, syncDate) => ({
@@ -273,7 +209,7 @@ const enrichBanksWithHeadquartersAddress = async (banksData) => {
       }
 
       const cnpj = normalizeCnpj(match.record.CNPJ);
-      const headquartersAddress = parseAddress(match.record);
+      const headquartersAddress = BcbAddressAdapter.adapt(match.record);
 
       if (!headquartersAddress) {
         return {
