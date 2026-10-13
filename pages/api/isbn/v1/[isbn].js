@@ -1,4 +1,4 @@
-import { Promise, AggregateError } from 'bluebird';
+import { AggregateError } from 'bluebird';
 
 import app from '@/app';
 
@@ -7,39 +7,8 @@ import BadRequestError from '@/errors/BadRequestError';
 import InternalError from '@/errors/InternalError';
 import NotFoundError from '@/errors/NotFoundError';
 
+import isbnFacade from '@/services/isbn';
 import { isValidIsbn } from '@/services/isbn/tools';
-import searchInCbl from '@/services/isbn/cbl';
-import searchInGoogleBooks from '@/services/isbn/googleBooks';
-import searchInMercadoEditorial from '@/services/isbn/mercadoEditorial';
-import searchInOpenLibrary from '@/services/isbn/openLibrary';
-
-const PROVIDER_MAP = {
-  cbl: searchInCbl,
-  'google-books': searchInGoogleBooks,
-  'mercado-editorial': searchInMercadoEditorial,
-  'open-library': searchInOpenLibrary,
-};
-
-async function searchIsbn(isbn, providers = null) {
-  let promises = [];
-  const allProviders = Object.values(PROVIDER_MAP);
-
-  if (!providers || providers.length === 0) {
-    promises = allProviders;
-  } else {
-    promises = providers
-      .map((provider) => PROVIDER_MAP[provider])
-      .filter(Boolean);
-
-    if (promises.length === 0) {
-      promises = allProviders;
-    }
-  }
-
-  const data = await Promise.any(promises.map((promise) => promise(isbn)));
-
-  return data;
-}
 
 async function getBookByIsbn(request, response) {
   try {
@@ -52,7 +21,7 @@ async function getBookByIsbn(request, response) {
       throw new BadRequestError({ message: 'ISBN inválido' });
     }
 
-    const result = await searchIsbn(requestedIsbn, providers);
+    const result = await isbnFacade.search(requestedIsbn, providers);
 
     return response.status(200).json(result);
   } catch (error) {
